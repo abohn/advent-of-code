@@ -1,9 +1,9 @@
 use std::fs::File;
-use std::io::{BufReader, BufRead};
+use std::io::{BufRead, BufReader};
 
 fn main() {
     let filename = "input.txt";
-    
+
     // Open in read-only mode, ignoring errors.
     let file = match File::open(filename) {
         Ok(file) => file,
@@ -11,7 +11,6 @@ fn main() {
             panic!("Error opening {}: {}", filename, err);
         }
     };
-
 
     let reader = BufReader::new(file);
 
@@ -23,16 +22,14 @@ fn main() {
             elves_cals.push(this_elf_cals);
             this_elf_cals = 0;
             continue;
-        }
-        else {
+        } else {
             this_elf_cals += line.parse::<i32>().unwrap();
         }
     }
 
     elves_cals.sort();
     elves_cals.reverse();
-    let top_n_cals : i32 = elves_cals[ .. 3].iter().sum();
-
+    let top_n_cals: i32 = elves_cals[..3].iter().sum();
 
     println!("{}", top_n_cals);
 }
