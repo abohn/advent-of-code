@@ -16,9 +16,20 @@ fn get_play_as_int(play: char, base: char) -> i32 {
     return ((play as u32) - (base as u32) + 1) as i32;
 }
 
-fn score_round(opp_play: char, strat_play: char) -> i32 {
+fn score_round(opp_play: char, strat_play: char, day2: bool) -> i32 {
     let opp_num = get_play_as_int(opp_play, 'A');
-    let my_num = get_play_as_int(strat_play, 'X');
+    let mut my_num = get_play_as_int(strat_play, 'X');
+
+    if day2 {
+        // strat is the desired result on day2
+        // X = LOSE (want to be opp - 1)
+        // Y = DRAW (want to be opp)
+        // Z = WIN (want to be opp + 1)
+        my_num = (opp_num + my_num - 2).rem_euclid(3);
+        if my_num == 0 {
+            my_num = 3;
+        }
+    }
 
     let outcome = (opp_num - my_num).rem_euclid(3);
     let outcome_score = match outcome {
@@ -32,11 +43,12 @@ fn score_round(opp_play: char, strat_play: char) -> i32 {
 }
 
 fn main() {
-    assert!(process("test") == 15, "Failed testcase");
-    process("input");
+    assert!(process("test", false) == 15, "Failed testcase");
+    assert!(process("test", true) == 12, "Failed testcase");
+    process("input", true);
 }
 
-fn process(input: &str) -> i32 {
+fn process(input: &str, day2: bool) -> i32 {
     let reader = BufReader::new(get_file(input));
 
     // Round 1:
@@ -54,7 +66,7 @@ fn process(input: &str) -> i32 {
         let opp_play = round_iter.next().unwrap().chars().next().unwrap();
         let strat_play = round_iter.next().unwrap().chars().next().unwrap();
 
-        score += score_round(opp_play, strat_play);
+        score += score_round(opp_play, strat_play, day2);
     }
 
     println!("{} {}", input, score);
