@@ -59,7 +59,7 @@ fn process(input: &str, day2: bool) -> i32 {
     // shape_score 1 rock, 2 paper, 3 scissors
     // outcome_score 0 lose, 3 draw, 6 win
     let mut score = 0;
-    for (_, line) in reader.lines().enumerate() {
+    for line in reader.lines() {
         let line = line.unwrap();
 
         let mut round_iter = line.split_whitespace();
