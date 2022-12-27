@@ -1,11 +1,12 @@
 use util::read_lines;
 
 fn main() {
-    assert!(process("test") == "CMZ", "Failed testcase");
-    process("input");
+    assert!(process("test", false) == "CMZ", "Failed testcase");
+    assert!(process("test", true) == "MCD", "Failed testcase");
+    process("input", true);
 }
 
-fn process(filename: &str) -> String {
+fn process(filename: &str, is_9001: bool) -> String {
     let lines = read_lines(filename).unwrap();
 
     // Step until finding the num stacks
@@ -57,15 +58,25 @@ fn process(filename: &str) -> String {
             let line_str = line.unwrap();
             let mut move_cmd = line_str.split_whitespace();
 
-            let num_to_move = move_cmd.nth(1).unwrap().parse::<i32>().unwrap();
+            let num_to_move = move_cmd.nth(1).unwrap().parse::<usize>().unwrap();
 
             // -1 to convert from 1 to 0 based indexing
             let origin = move_cmd.nth(1).unwrap().parse::<usize>().unwrap() - 1;
             let dest = move_cmd.nth(1).unwrap().parse::<usize>().unwrap() - 1;
 
-            for _ in 0..num_to_move {
-                let item = stacks[origin].pop().unwrap();
-                stacks[dest].push(item);
+            if is_9001 {
+                // move in bulk
+                //  example num_to_move 2, height 6
+                //  slice 4 and 5
+                let origin_height = stacks[origin].len();
+                let mut items = stacks[origin].split_off(origin_height - num_to_move);
+                stacks[dest].append(&mut items);
+            } else {
+                // move one at a time
+                for _ in 0..num_to_move {
+                    let item = stacks[origin].pop().unwrap();
+                    stacks[dest].push(item);
+                }
             }
         }
     }
