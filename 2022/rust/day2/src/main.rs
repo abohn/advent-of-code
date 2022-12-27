@@ -49,7 +49,7 @@ fn main() {
 }
 
 fn process(input: &str, day2: bool) -> i32 {
-    let reader = BufReader::new(get_file(input));
+    let lines = BufReader::new(get_file(input)).lines();
 
     // Round 1:
     // An elf gave us a strategy guide with predictions and recommendations

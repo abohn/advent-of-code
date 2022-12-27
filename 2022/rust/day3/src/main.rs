@@ -1,20 +1,9 @@
-use std::fs::File;
-use std::io::{BufRead, BufReader};
-
-fn get_file(filename: &str) -> File {
-    let file: File = match File::open(&filename) {
-        Ok(file) => file,
-        Err(err) => {
-            panic!("Error opening {}: {}", filename, err);
-        }
-    };
-
-    return file;
-}
+use util::read_lines;
 
 fn main() {
     assert!(process("test") == 157, "Failed testcase");
-    process("input");
+    assert!(process_day2("test") == 70, "Failed testcase day2");
+    process_day2("input");
 }
 
 fn get_index(c: char) -> usize {
@@ -31,18 +20,20 @@ fn get_index(c: char) -> usize {
     }
 }
 
+fn populate_charmap(string: &str) -> Vec<bool> {
+    let mut items = vec![false; 52];
+    for c in string.chars() {
+        items[get_index(c)] = true;
+    }
+    return items;
+}
+
 fn get_dupe_priority(line: &str) -> i32 {
     let divisor = line.len() / 2;
     let first = &line[..divisor];
     let second = &line[divisor..];
 
-    // Build a static bitmap with the first set, break early if
-    // the second gets a hit.
-    let mut items = vec![false; 52];
-    for c in first.chars() {
-        items[get_index(c)] = true;
-    }
-
+    let items = populate_charmap(first);
     for c in second.chars() {
         let index = get_index(c);
         if items[index] {
@@ -53,9 +44,22 @@ fn get_dupe_priority(line: &str) -> i32 {
     panic!("didn't find duplicate item!");
 }
 
-fn process(input: &str) -> i32 {
-    let reader = BufReader::new(get_file(input));
+fn get_group_dupe_priority(line1: &str, line2: &str, line3: &str) -> i32 {
+    let items1 = populate_charmap(line1);
+    let items2 = populate_charmap(line2);
+    let items3 = populate_charmap(line3);
 
+    for n in 0..52 {
+        if items1[n] && items2[n] && items3[n] {
+            return (n + 1) as i32;
+        }
+    }
+
+    // Index is 0-51, priorities are 1-52.
+    panic!("didn't find duplicate item!");
+}
+
+fn process(filename: &str) -> i32 {
     // Round 1
     // Each rucksack has one dupe. Sum priorities of dupes
     // across rucksacks.
@@ -64,12 +68,29 @@ fn process(input: &str) -> i32 {
     //
     // Rucksacks have N chars, with N/2 in each compartment.
     let mut priorities = 0;
-    for line in reader.lines() {
+    let lines = read_lines(filename).unwrap();
+    for line in lines {
         let line = line.unwrap();
-
         priorities += get_dupe_priority(&line);
     }
 
-    println!("{} {}", input, priorities);
+    println!("{} {}", filename, priorities);
+    return priorities;
+}
+
+fn process_day2(filename: &str) -> i32 {
+    let mut lines = read_lines(filename).unwrap();
+
+    // Round 2
+    // Each set of 3 rucksacks has one common dupe.
+    // Sum priorities of dupes across groups.
+    // a-z -> 1-26
+    // A-Z -> 27-52
+    let mut priorities = 0;
+    while let (Some(line1), Some(line2), Some(line3)) = (lines.next(), lines.next(), lines.next()) {
+        priorities += get_group_dupe_priority(&line1.unwrap(), &line2.unwrap(), &line3.unwrap());
+    }
+
+    println!("{} {}", filename, priorities);
     return priorities;
 }
