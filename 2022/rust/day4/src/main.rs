@@ -1,7 +1,7 @@
 use util::read_lines;
 
 fn main() {
-    assert!(process("test") == 2, "Failed testcase");
+    assert!(process("test") == (2, 4), "Failed testcase");
     process("input");
 }
 
@@ -20,8 +20,10 @@ impl ElfRange {
     }
 }
 
-fn process(filename: &str) -> i32 {
+fn process(filename: &str) -> (i32, i32) {
     let mut redundancies = 0;
+    let mut partial_redundancies = 0;
+
     let lines = read_lines(filename).unwrap();
     for line in lines {
         let line = line.unwrap();
@@ -34,8 +36,12 @@ fn process(filename: &str) -> i32 {
         if r2_in_r1 || r1_in_r2 {
             redundancies += 1;
         }
+
+        if r2.lo <= r1.hi && r2.hi >= r1.lo {
+            partial_redundancies += 1;
+        }
     }
 
-    println!("{} {}", filename, redundancies);
-    return redundancies;
+    println!("{} {} {}", filename, redundancies, partial_redundancies);
+    return (redundancies, partial_redundancies);
 }
