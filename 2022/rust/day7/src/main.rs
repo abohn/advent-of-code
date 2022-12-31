@@ -43,7 +43,7 @@ fn get_dir_sizes(
     size
 }
 
-fn process() -> i32 {
+fn process() {
     let input = include_str!("../input");
 
     let mut path = PathBuf::from("/");
@@ -84,11 +84,15 @@ fn process() -> i32 {
     }
 
     let mut sizes: HashMap<PathBuf, i32> = HashMap::new();
-    get_dir_sizes(&PathBuf::from("/"), &dir_data, &mut sizes);
+    let total_sizes = get_dir_sizes(&PathBuf::from("/"), &dir_data, &mut sizes);
 
     let part1_total = sizes.values().filter(|&&s| s <= 100000).sum::<i32>();
-    println!("{}", part1_total);
-    part1_total
+    let part2 = sizes
+        .values()
+        .filter(|&&s| s >= 30000000 - (70000000 - total_sizes))
+        .min()
+        .unwrap();
+    println!("{} {}", part1_total, part2);
 }
 
 fn main() {
