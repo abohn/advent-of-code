@@ -2,13 +2,13 @@ use std::cmp::Ordering;
 use std::str::FromStr;
 
 enum Operation {
-    Add(i32),
-    Mult(i32),
+    Add(i64),
+    Mult(i64),
     Square,
 }
 
 impl Operation {
-    fn apply(self: &Self, v: i32) -> i32 {
+    fn apply(self: &Self, v: i64) -> i64 {
         match self {
             Operation::Add(rhs) => v + rhs,
             Operation::Mult(rhs) => v * rhs,
@@ -28,23 +28,23 @@ impl FromStr for Operation {
             .split_once(' ')
             .unwrap();
         if op == "+" {
-            return Ok(Operation::Add(rhs.parse::<i32>().unwrap()));
+            return Ok(Operation::Add(rhs.parse::<i64>().unwrap()));
         } else if rhs == "old" {
             return Ok(Operation::Square);
         } else {
-            return Ok(Operation::Mult(rhs.parse::<i32>().unwrap()));
+            return Ok(Operation::Mult(rhs.parse::<i64>().unwrap()));
         }
     }
 }
 
 struct Test {
-    divisor: i32,
+    divisor: i64,
     success_monkey: usize,
     fail_monkey: usize,
 }
 
 impl Test {
-    fn test(self: &Self, item: i32) -> usize {
+    fn test(self: &Self, item: i64) -> usize {
         if item.rem_euclid(self.divisor) == 0 {
             return self.success_monkey;
         } else {
@@ -64,7 +64,7 @@ impl FromStr for Test {
             .skip(1)
             .next()
             .unwrap()
-            .parse::<i32>()
+            .parse::<i64>()
             .unwrap();
 
         let success_monkey = lines[1]
@@ -93,14 +93,14 @@ impl FromStr for Test {
 
 struct Monkey {
     op: Operation,
-    items: Vec<i32>,
+    items: Vec<i64>,
     test: Test,
-    inspected: i32,
+    inspected: i64,
 }
 
 impl Monkey {
-    fn get_actions(self: &mut Self, worry_div: i32, common_div: i32) -> Vec<(i32, usize)> {
-        let mut actions: Vec<(i32, usize)> = Vec::new();
+    fn get_actions(self: &mut Self, worry_div: i64, common_div: i64) -> Vec<(i64, usize)> {
+        let mut actions: Vec<(i64, usize)> = Vec::new();
         for item in self.items.iter() {
             self.inspected += 1;
 
@@ -150,7 +150,7 @@ impl FromStr for Monkey {
             .next()
             .unwrap()
             .split(", ")
-            .map(|x| x.parse::<i32>().unwrap())
+            .map(|x| x.parse::<i64>().unwrap())
             .collect();
 
         // get operation
@@ -174,7 +174,7 @@ fn parse_input(input: &str) -> Vec<Monkey> {
         .collect()
 }
 
-fn process(monkies: &mut Vec<Monkey>, rounds: i32, worry_div: i32) -> i32 {
+fn process(mut monkies: Vec<Monkey>, rounds: i32, worry_div: i64) -> i64 {
     let common_div = monkies.iter().fold(1, |acc, e| acc * e.test.divisor);
     for _ in 0..rounds {
         for i in 0..monkies.len() {
@@ -188,12 +188,15 @@ fn process(monkies: &mut Vec<Monkey>, rounds: i32, worry_div: i32) -> i32 {
 
     // Sort in descending order
     monkies.sort_by(|a, b| b.cmp(a));
+    println!(
+        "{:?}",
+        monkies.iter().map(|m| m.inspected).collect::<Vec<i64>>()
+    );
     return monkies[0].inspected * monkies[1].inspected;
 }
 
 fn main() {
-    let mut input = parse_input(include_str!["../input"]);
-    println!("{}", process(&mut input, 20, 3));
-    println!("{}", process(&mut input, 10000, 1));
-    //let p2 = process(&mut input, 10000, 1);
+    let input = parse_input(include_str!["../input"]);
+    //println!("{}", process(input, 20, 3));
+    println!("{}", process(input, 10000, 1));
 }
