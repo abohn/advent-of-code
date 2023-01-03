@@ -99,12 +99,13 @@ struct Monkey {
 }
 
 impl Monkey {
-    fn get_actions(self: &mut Self, worry_div: i32) -> Vec<(i32, usize)> {
+    fn get_actions(self: &mut Self, worry_div: i32, common_div: i32) -> Vec<(i32, usize)> {
         let mut actions: Vec<(i32, usize)> = Vec::new();
         for item in self.items.iter() {
             self.inspected += 1;
 
-            let new_val = self.op.apply(*item) / worry_div;
+            // Mod out the common divisor, as it doesn't impact passing and keeps values lower
+            let new_val = (self.op.apply(*item) / worry_div) % common_div;
             let dst_monkey = self.test.test(new_val);
             actions.push((new_val, dst_monkey));
         }
@@ -174,10 +175,10 @@ fn parse_input(input: &str) -> Vec<Monkey> {
 }
 
 fn process(monkies: &mut Vec<Monkey>, rounds: i32, worry_div: i32) -> i32 {
-    for round in 0..rounds {
-        println!("round {}", round);
+    let common_div = monkies.iter().fold(1, |acc, e| acc * e.test.divisor);
+    for _ in 0..rounds {
         for i in 0..monkies.len() {
-            let actions = monkies[i].get_actions(worry_div);
+            let actions = monkies[i].get_actions(worry_div, common_div);
 
             for (val, dst) in actions {
                 monkies[dst].items.push(val);
@@ -193,6 +194,6 @@ fn process(monkies: &mut Vec<Monkey>, rounds: i32, worry_div: i32) -> i32 {
 fn main() {
     let mut input = parse_input(include_str!["../input"]);
     println!("{}", process(&mut input, 20, 3));
-    println!("{}", process(&mut input, 10000, 3));
+    println!("{}", process(&mut input, 10000, 1));
     //let p2 = process(&mut input, 10000, 1);
 }
