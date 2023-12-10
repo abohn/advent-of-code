@@ -18,14 +18,10 @@ def run(filename, part2=False):
             ]
             for w in words:
                 line = line.replace(w[0], f"{w[0]}{w[1]}{w[0]}")
-        for c in line:
-            if c.isdigit():
-                first = int(c)
-                break
-        for c in reversed(line):
-            if c.isdigit():
-                second = int(c)
-                break
+
+        first = next(int(c) for c in line if c.isdigit())
+        second = next(int(c) for c in reversed(line) if c.isdigit())
+
         nums.append(first * 10 + second)
     return sum(nums)
 
