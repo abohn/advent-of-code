@@ -1,1 +1,1 @@
-I guess I'm going to try the Advent now
+trying out new languages with Advent of Code
